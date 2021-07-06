@@ -1,29 +1,68 @@
-const notesCtrl = {};
-
 const Note = require("../models/Note");
 
+const notesCtrl = {};
+
 notesCtrl.getNotes = async (req, res) => {
-  const notas = await Note.find();
-  res.json(notas);
+  try {
+    const notes = await Note.find();
+    res.json(notes);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 notesCtrl.getNote = async (req, res) => {
-  const { title, description } = req.body;
-  const newNote = new Note(req.body);
-  await newNote.save();
-  res.json({ message: "note created" });
+  try {
+    const id = req.params.id;
+    const note = await Note.findById(id);
+    if (note) {
+      res.json(note);
+    } else {
+      res.status(204).json({ message: "Note not found" });
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-notesCtrl.createNote = (req, res) => {
-  res.json("post");
+notesCtrl.createNote = async (req, res) => {
+  try {
+    const { title, content, date, author } = req.body;
+    const newNote = new Note({ title, content, date, author });
+    await newNote.save();
+    res.json({ message: "Note created" });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-notesCtrl.updateNote = (req, res) => {
-  res.json("put");
+notesCtrl.updateNote = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { title, content, author } = req.body;
+    const note = await Note.findByIdAndUpdate(id, { title, content, author });
+    if (note) {
+      res.json(note);
+    } else {
+      res.status(204).json({ message: "Note not found" });
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-notesCtrl.deleteNote = (req, res) => {
-  res.json("delete");
+notesCtrl.deleteNote = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const note = await Note.findByIdAndDelete(id);
+    if (note) {
+      res.json(note);
+    } else {
+      res.status(204).json({ message: "Note not found" });
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 module.exports = notesCtrl;
